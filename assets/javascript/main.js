@@ -9,52 +9,52 @@
 // 5. Calculate Total billed
 
 // 1. Initialize Firebase
+
 var config = {
-    apiKey: "AIzaSyA_QypGPkcjPtylRDscf7-HQl8ribnFeIs",
-    authDomain: "time-sheet-55009.firebaseapp.com",
-    databaseURL: "https://time-sheet-55009.firebaseio.com",
-    storageBucket: "time-sheet-55009.appspot.com"
+    apiKey: "AIzaSyBQ7U_j1Hlb7drX22PRDv2HB4SrDfncesY",
+    authDomain: "train-0525.firebaseapp.com",
+    databaseURL: "https://train-0525.firebaseio.com",
+    projectId: "train-0525",
+    storageBucket: "train-0525.appspot.com",
+    messagingSenderId: "676768318334"
   };
-  
   firebase.initializeApp(config);
   
-  var database = firebase.database();
-  
   // 2. Button for adding Employees
-  $("#add-employee-btn").on("click", function(event) {
+  $("#add-train-btn").on("click", function(event) {
     event.preventDefault();
   
     // Grabs user input
-    var empName = $("#employee-name-input").val().trim();
-    var empRole = $("#role-input").val().trim();
-    var empStart = moment($("#start-input").val().trim(), "DD/MM/YY").format("X");
-    var empRate = $("#rate-input").val().trim();
+    var trainName = $("#train-name-input").val().trim();
+    var destTrain = $("#dest-input").val().trim();
+    var minTrain = moment($("#min-input").val().trim(), "hh:mm:ss").format("X");
+    var nextTrain = $("#next-input").val().trim();
   
     // Creates local "temporary" object for holding employee data
-    var newEmp = {
-      name: empName,
-      role: empRole,
-      start: empStart,
-      rate: empRate
+    var newTrain = {
+      name: trainName,
+      dest: destTrain,
+      time: minTrain,
+      next: nextTrain
     };
   
     // Uploads employee data to the database
-    database.ref().push(newEmp);
+    database.ref().push(newTrain);
   
     // Logs everything to console
-    console.log(newEmp.name);
-    console.log(newEmp.role);
-    console.log(newEmp.start);
-    console.log(newEmp.rate);
+    console.log(newTrain.name);
+    console.log(newTrain.dest);
+    console.log(newTrain.time);
+    console.log(newTrain.next);
   
     // Alert
-    alert("Employee successfully added");
+    alert("Train successfully added");
   
     // Clears all of the text-boxes
-    $("#employee-name-input").val("");
-    $("#role-input").val("");
-    $("#start-input").val("");
-    $("#rate-input").val("");
+    $("#train-name-input").val("");
+    $("#dest-input").val("");
+    $("#min-input").val("");
+    $("#next-input").val("");
   });
   
   // 3. Create Firebase event for adding employee to the database and a row in the html when a user adds an entry
@@ -64,15 +64,15 @@ var config = {
   
     // Store everything into a variable.
     var empName = childSnapshot.val().name;
-    var empRole = childSnapshot.val().role;
-    var empStart = childSnapshot.val().start;
-    var empRate = childSnapshot.val().rate;
+    var empRole = childSnapshot.val().dest;
+    var empStart = childSnapshot.val().time;
+    var empRate = childSnapshot.val().next;
   
     // Employee Info
-    console.log(empName);
-    console.log(empRole);
-    console.log(empStart);
-    console.log(empRate);
+    console.log(trainName);
+    console.log(destTrain);
+    console.log(minTrain);
+    console.log(nextTrain);
   
     // Prettify the employee start
     var empStartPretty = moment.unix(empStart).format("MM/DD/YY");
