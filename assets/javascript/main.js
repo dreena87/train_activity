@@ -1,101 +1,134 @@
-/* global firebase moment */
-// Steps to complete:
 
-// 1. Initialize Firebase
-// 2. Create button for adding new employees - then update the html + update the database
-// 3. Create a way to retrieve employees from the employee database.
-// 4. Create a way to calculate the months worked. Using difference between start and current time.
-//    Then use moment.js formatting to set difference in months.
-// 5. Calculate Total billed
+ var config = {
+  apiKey: "AIzaSyAlXf59qnV4taQiZhzU1ZS7ds9zbv4DHws",
+  authDomain: "train-052587.firebaseapp.com",
+  databaseURL: "https://train-052587.firebaseio.com",
+  projectId: "train-052587",
+  storageBucket: "",
+  messagingSenderId: "267321084639"
+};
+firebase.initializeApp(config);
 
-// 1. Initialize Firebase
 
-var config = {
-    apiKey: "AIzaSyBQ7U_j1Hlb7drX22PRDv2HB4SrDfncesY",
-    authDomain: "train-0525.firebaseapp.com",
-    databaseURL: "https://train-0525.firebaseio.com",
-    projectId: "train-0525",
-    storageBucket: "train-0525.appspot.com",
-    messagingSenderId: "676768318334"
-  };
-  firebase.initializeApp(config);
+var database = firebase.database();
+
+var employeeDir = database.ref("/employees");
   
-  // 2. Button for adding Employees
-  $("#add-train-btn").on("click", function(event) {
-    event.preventDefault();
-  
-    // Grabs user input
-    var trainName = $("#train-name-input").val().trim();
-    var destTrain = $("#dest-input").val().trim();
-    var minTrain = moment($("#min-input").val().trim(), "hh:mm:ss").format("X");
-    var nextTrain = $("#next-input").val().trim();
-  
-    // Creates local "temporary" object for holding employee data
-    var newTrain = {
-      name: trainName,
-      dest: destTrain,
-      time: minTrain,
-      next: nextTrain
-    };
-  
-    // Uploads employee data to the database
-    database.ref().push(newTrain);
-  
-    // Logs everything to console
-    console.log(newTrain.name);
-    console.log(newTrain.dest);
-    console.log(newTrain.time);
-    console.log(newTrain.next);
-  
-    // Alert
-    alert("Train successfully added");
-  
-    // Clears all of the text-boxes
-    $("#train-name-input").val("");
-    $("#dest-input").val("");
-    $("#min-input").val("");
-    $("#next-input").val("");
+  //click event when submit is pressed
+  $(".btn-secondary").on("click",function(e){
+    console.log("clicked");
+    e.preventDefault();
+    //store information from fields into vars
+    var name = $("#train-name").val().trim();
+    var destination = $("#destination-name").val().trim();
+    var time = $("#time-name").val().trim(); 
+    var frequency = $("#frequency-name").val().trim();
+
+    //lets log to verify data is good
+    console.log(name,destination,time,frequency);
+
+    employeeDir.push({
+      name: name,
+      destination: destination,
+      time: time,
+      frequency: frequency,
+    });
+
+    $(".arrival-form").trigger("reset");//clear form
+
   });
-  
-  // 3. Create Firebase event for adding employee to the database and a row in the html when a user adds an entry
-  database.ref().on("child_added", function(childSnapshot, prevChildKey) {
-  
-    console.log(childSnapshot.val());
-  
-    // Store everything into a variable.
-    var empName = childSnapshot.val().name;
-    var empRole = childSnapshot.val().dest;
-    var empStart = childSnapshot.val().time;
-    var empRate = childSnapshot.val().next;
-  
-    // Employee Info
+
+  //if there is something in the database add to the train table
+  employeeDir.on("child_added", function(childSnapshot) {
+
+    // Log everything that's coming out of snapshot
+    console.log(childSnapshot.val().name);
+    console.log(childSnapshot.val().destination);
+    console.log(childSnapshot.val().time);
+    console.log(childSnapshot.val().frequency);
+
+    var name = childSnapshot.val().name;
+    var destination = childSnapshot.val().destination;
+    var time = childSnapshot.val().time;
+    var frequency = childSnapshot.val().frequency;
+
+    //let's create a train object and append to the schedule
+    var newRow = $("<tr>");
+    var nameDisplay = $("<td>");
+    var destinationDisplay = $("<td>");
+    var timeDisplay = $("<td>");
+    var frequencyDisplay = $("<td>");
+    var minutesDisplay = $("<td class='minutes-disp'>");
+    var removeDisplay = $("<td>");
+    var removeButton = $("<button>");
+    var removeForm = $("<form>");
+    console.log(time);
+
+    nameDisplay.attr("scope","col");
+    destinationDisplay.attr("scope","col");
+    timeDisplay.attr("scope","col");
+    frequencyDisplay.attr("scope","col");
+    minutesDisplay.attr("scope","col");
+    removeDisplay.attr("scope","col");
+
+    //calculate difference of first train time minus current time modules the frequency between trains
+    var minutes = frequency - Math.floor(((moment().unix("X")-moment(time, "hh:mm").unix("X"))/60)%frequency);
+    console.log("Delta time; " + (moment().unix("X")-moment(time, "hh:mm").unix("X"))/60);
+    console.log("until next train: "+ ((moment().unix("X")-moment(time, "hh:mm").unix("X"))/60)%frequency)
+
+    //now time of next train is current time + minutes
+    var timeNext = moment().add(minutes,'m').format('HH:mm');
+
+    nameDisplay.html(name);
+    destinationDisplay.html(destination);
+    timeDisplay.html(timeNext);
+    frequencyDisplay.html(frequency);
+    minutesDisplay.html(minutes);
+    removeButton.addClass("btn btn-danger");
+    removeButton.text("Remove");
+    removeForm.html(removeButton);
+    removeDisplay.append(removeForm);
+
+    newRow.append(nameDisplay,destinationDisplay,frequencyDisplay,timeDisplay,minutesDisplay,removeDisplay);
+    $("tbody").append(newRow);
+  },function(errorObject) {
+    console.log("Errors handled: " + errorObject.code);
+  });
+
+  //create clock using moment.js to display to user and also update the train schedule (per minute)
+
+  function rollingClock() {
+    var clock = moment().format('HH:mm:ss');  //create clock with hours, minutes and seconds format
+    $("#current-time").html(clock); //append time to current-time element
+    setTimeout(rollingClock,1000);  //callback every second;
+    
+  }
+
+  //create on event when remove button is pressed for row to remove the entire row from the database
+  $(".table").on("click",".btn-danger",function(f){
+
+    f.preventDefault(); //don't refresh window
+    console.log("I detected a press!");
+    var trainName = $(this).closest('tr').find("td:first-child").text();
     console.log(trainName);
-    console.log(destTrain);
-    console.log(minTrain);
-    console.log(nextTrain);
-  
-    // Prettify the employee start
-    var empStartPretty = moment.unix(empStart).format("MM/DD/YY");
-  
-    // Calculate the months worked using hardcore math
-    // To calculate the months worked
-    var empMonths = moment().diff(moment.unix(empStart, "X"), "months");
-    console.log(empMonths);
-  
-    // Calculate the total billed rate
-    var empBilled = empMonths * empRate;
-    console.log(empBilled);
-  
-    // Add each train's data into the table
-    $("#employee-table > tbody").append("<tr><td>" + empName + "</td><td>" + empRole + "</td><td>" +
-    empStartPretty + "</td><td>" + empMonths + "</td><td>" + empRate + "</td><td>" + empBilled + "</td></tr>");
+    employeeDir.once('value').then(function(snapshot) {
+
+      snapshot.forEach(function(snapshot1) {
+          console.log(snapshot1.key);
+          console.log(snapshot1.val().name);
+          if (snapshot1.val().name == trainName) {  //does child content match train clicked?
+
+            const key = snapshot1.key;
+            console.log("key found: "+ key);
+
+            // delete stickynote node from firebase
+            employeeDir.child(key).remove();
+          }
+      });
+    });
+    $(this).closest('tr').remove(); //delete closest tr to button
+
   });
-  
-  // Example Time Math
-  // -----------------------------------------------------------------------------
-  // Assume Employee start date of January 1, 2015
-  // Assume current date is March 1, 2016
-  
-  // We know that this is 15 months.
-  // Now we will create code in moment.js to confirm that any attempt we use meets this test case
-  
+
+  //initialize timer
+  rollingClock();

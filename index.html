@@ -1,104 +1,90 @@
-<!DOCTYPE html>
-
-<html lang="en-us">
-
+<!doctype html>
+<html lang="en">
   <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <meta charset="UTF-8">
-    <title>Train Tracker</title>
-
-    <!-- Bootstrap -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-
-    <!-- Firebase Reference -->
-    <script src="https://www.gstatic.com/firebasejs/live/3.0/firebase.js"></script>
-
-    <!-- Moment.js Reference -->
-    <!-- <script src="http://momentjs.com/downloads/moment.js"></script>   -->
-    <script src="https://cdn.jsdelivr.net/momentjs/2.12.0/moment.min.js"></script>
-
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link rel="stylesheet" href="./assets/css/style.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+    <title>Train Scheduler</title>
   </head>
-
   <body>
 
-    <!-- Employee Tracker -->
     <div class="container">
-
-      <!-- Jumbotron -->
-      <div class="jumbotron" style="background-color: black; color: white">
-        <h1 class="text-center">Train Tracker</h1>
-        <h3 class="text-center">A Tracker for train schedules</h3>
-      </div>
-
-      <div class="row">
-
-        <div class="col-lg-12">
-
-        <!-- Current Employees-->
-          <div class="panel panel-primary">
-            <div class="panel-heading">
-              <h3 class="panel-title"><strong>Train Tracker</strong></h3>
-            </div>
-            <div class="panel-body">
-              <table class="table table-hover" id='employee-table'>
-                <thead>
-                  <tr>
-                    <th>Train Name</th>
-                    <th>Destination</th>
-                    <th>Frequency (min)</th>
-                    <th>Next Arrival</th>
-                    <th>Minutes Away</th>
-                  </tr>
-                </thead>
-                <tbody>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <!-- Add Employee  -->
-          <div class="panel panel-primary">
-            <div class="panel-heading">
-              <h3 class="panel-title"><strong>Add Train</strong></h3>
-            </div>
-            <div class="panel-body">
-
-              <!-- Entry Form -->
-              <form>
-                <div class="form-group">
-                  <label for="train-name-input">Train Name</label>
-                  <input class="form-control" id="train-name-input" type="text">
-                </div>
-                <div class="form-group">
-                  <label for="dest-input">Destination</label>
-                  <input class="form-control" id="dest-input" type="text">
-                </div>
-                <div class="form-group">
-                  <label for="min-input">Frequency (min)</label>
-                  <input class="form-control" id="min-input" type="text">
-                </div>
-                <div class="form-group">
-                  <label for="next-input">Next Arrival</label>
-                  <input class="form-control" id="next-input" type="text">
-                </div>
-                <button class="btn btn-primary" id="add-train-btn" type="submit">Submit</button>
-              </form>
-
-            </div>
-
-          </div>
-
-        </div>
-
-      </div>
-
+        <header class="jumbotron">
+            <h1 class="display-4 text-center"><i class="fas fa-train"></i> Train Scheduler</h1>
+            
+        </header>
     </div>
 
-    <!-- JavaScript -->
-    <script src="timesheetLogic.js"></script>
+    <!-- Current Time-->
+    <div class="container">
+        <div class="arrivals mb-5">
+                <div class="element-header pl-2"><i class="fas fa-clock"></i> Current time</div>
+                <div id="current-time" class="text-center display-4"></div>
+        </div>
+    </div>
 
+    <!-- train schedule-->
+    <div class="container">
+        <div class="arrivals mb-5">
+            <div class="element-header pl-2"><i class="fas fa-clock"></i> Current train schedule</div>
+            <div class="pl-2 pr-2">
+                <table class="table pl-1 pr-1">
+                    <thead>
+                        <tr>
+                            <th scope="col">Train Name</th>
+                            <th scope="col">Destination</th>
+                            <th scope="col">Frequency(mins)</th>
+                            <th scope="col">Next Arrival</th>
+                            <th scope="col">Minutes Away</th>
+                        </tr>
+                    </thead>
+                    <!-- append data into this id-->
+                    <tbody id="schedule-body"></tbody>
+                </table>
+            </div>
+        </div>
+        <form class="arrivals mb-5 arrival-form">
+            <div class="element-header pl-2"><i class="far fa-plus-square"></i> Add train to schedule</div>
+            <div class="p-2">
+            <form>
+                <div class="form-group">
+                    <label for="train-name">Train Name</label>
+                    <input type="text" class="form-control" id="train-name" aria-describedby="trainhelp" placeholder="Name of train" required>
+                    <small id="trainhelp" class="form-text text-muted">Enter the name of the new train.</small>
+                </div>
+                <div class="form-group">
+                    <label for="destination-name">Destination</label>
+                    <input type="text" class="form-control" id="destination-name" aria-describedby="destinationhelp" placeholder="Name of destination" required>
+                    <small id="destinationhelp" class="form-text text-muted">Enter the name of the destination.</small>
+                </div>
+                <div class="form-group">
+                    <label for="time-name">First Train Time</label>
+                    <input type="time" class="form-control" id="time-name" aria-describedby="timehelp" value="14:30" required>
+                    <small id="timehelp" class="form-text text-muted">hh:mm</small>
+                </div>
+                <div class="form-group">
+                    <label for="frequency-name">Frequency</label>
+                    <input type="number" class="form-control" id="frequency-name" aria-describedby="frequencyhelp" placeholder="time" required pattern="[0-9]{4}">
+                    <small id="frequencyhelp" class="form-text text-muted">minutes</small>
+                </div>
+                <button type="submit" class="btn btn-secondary btn-lrg">Submit</button>
+            </form>
+            </div>
+        </form>
+    </div>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/momentjs/2.12.0/moment.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+    <script src="https://www.gstatic.com/firebasejs/5.5.1/firebase.js"></script>
+    <script src="./assets/javascript/main.js"></script>
   </body>
-
 </html>
