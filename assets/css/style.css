@@ -1,9 +1,9 @@
 .arrivals {
-    border: solid 1px #3366FF;
+    border: solid 1px black;
     border-radius: 10px;
 }
 .element-header {
-    background-color:#3366FF;
+    background-color: black;
     color:white;
     border-radius: 9px 9px 0px 0px;
 }
